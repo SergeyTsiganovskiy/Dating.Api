@@ -26,9 +26,9 @@ namespace Dating.API.Data
             {
                 // create the password hash
                 byte[] passwordHash, passwordSalt;
-                CreatePasswordHash("password", out passwordHash, out passwordSalt);
+                CreatePasswordHash("12345", out passwordHash, out passwordSalt);
 
-                user.PasswordHash = passwordSalt;
+                user.PasswordHash = passwordHash;
                 user.PasswordSalt = passwordSalt;
                 user.Username = user.Username.ToLower();
 
