@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
+using Dating.Api.Helpers;
 using Dating.API.Controllers.Dtos;
 using Dating.API.Data;
 using Dating.API.Helpers;
@@ -37,6 +39,38 @@ namespace Dating.API.Controllers
 
             return Ok(messageFromRepo);
         }
+
+        [HttpGet("thread/{id}")]
+        public async Task<IActionResult> GetMessageThread(int userId, int id)
+        {
+            if (userId != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
+                return Unauthorized();
+
+            var messageFromRepo = await _repo.GetMessageThread(userId, id);
+
+            var messageThread = _mapper.Map<IEnumerable<MessageToReturnDto>>(messageFromRepo);
+
+            return Ok(messageThread);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetMessagesForUser(int userId, MessageParams messageParams)
+        {
+            if (userId != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
+                return Unauthorized();
+
+            var messagesFromRepo = await _repo.GetMessagesForUser(messageParams);
+
+            var messages = _mapper.Map<IEnumerable<MessageToReturnDto>>(messagesFromRepo);
+
+            Response.AddPagination(messagesFromRepo.CurrentPage,
+            messagesFromRepo.PageSize, messagesFromRepo.TotalCount, messagesFromRepo.TotalPages);
+
+            return Ok(messages);
+        }
+
+
+
 
         [HttpPost]
         public async Task<IActionResult> CreateMessage(int userId, [FromBody] MessageForCreationDto messageForCreationDto )
