@@ -42,8 +42,8 @@ namespace Dating.API.Controllers
         [HttpGet("{id}", Name = "GetPhoto")]
         public async Task<IActionResult> GetPhoto(int id)
         {
-            var photoFromRepo = _repo.GetPhoto(id);
-            var photo = _mapper.Map<PhotoForReturnDto>(photoFromRepo);
+            var photoFromRepo = await _repo.GetPhoto(id);
+            var photo =  _mapper.Map<PhotoForReturnDto>(photoFromRepo);
             return Ok(photo);
         }
 
@@ -145,11 +145,11 @@ namespace Dating.API.Controllers
 
             var result = _cloudinary.Destroy(deleteParams);
 
-            if (result.Result == "ok");
+            if (result.Result == "ok")
                 _repo.Delete(photoFromRepo);
             }
 
-            // for seed data
+            // for seeding data
             if (photoFromRepo.PublicId == null)
             {
                 _repo.Delete(photoFromRepo);
