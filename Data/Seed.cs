@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Dating.API.Models;
 using Newtonsoft.Json;
 
@@ -15,27 +16,30 @@ namespace Dating.API.Data
 
         public void SeedUsers()
         {
-            // clean
-            _context.Users.RemoveRange(_context.Users);
-            _context.SaveChanges();
-
-            // seed users
-            var userData = File.ReadAllText("Data/UserSeedData.json");
-            var users = JsonConvert.DeserializeObject<List<User>>(userData);
-            foreach (var user in users)
+            if (!_context.Users.Any())
             {
-                // create the password hash
-                byte[] passwordHash, passwordSalt;
-                CreatePasswordHash("12345", out passwordHash, out passwordSalt);
+                // clean
+                _context.Users.RemoveRange(_context.Users);
+                _context.SaveChanges();
 
-                user.PasswordHash = passwordHash;
-                user.PasswordSalt = passwordSalt;
-                user.Username = user.Username.ToLower();
+                // seed users
+                var userData = File.ReadAllText("Data/UserSeedData.json");
+                var users = JsonConvert.DeserializeObject<List<User>>(userData);
+                foreach (var user in users)
+                {
+                    // create the password hash
+                    byte[] passwordHash, passwordSalt;
+                    CreatePasswordHash("12345", out passwordHash, out passwordSalt);
 
-                _context.Users.Add(user);
+                    user.PasswordHash = passwordHash;
+                    user.PasswordSalt = passwordSalt;
+                    user.Username = user.Username.ToLower();
+
+                    _context.Users.Add(user);
+                }
+
+                _context.SaveChanges();
             }
-
-            _context.SaveChanges();
         }
 
         private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
